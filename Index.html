@@ -250,7 +250,7 @@
     <div id="registerSection" class="auth-container">
         <h2><i class="fas fa-user-plus"></i> Register</h2>
         <form id="registerForm" onsubmit="handleRegistration(event)">
-            <input type="email" id="reg_email" placeholder="Email" required>
+            <input type="text" id="reg_username" placeholder="Telegram Username (@username)" required>
             <input type="password" id="reg_password" placeholder="Password (min 8 characters)" required>
             <input type="text" id="reg_chat_id" placeholder="Telegram Chat ID (10 digits)" required>
             <button type="submit" class="btn btn-primary">Register</button>
@@ -261,7 +261,7 @@
     <div id="loginSection" class="auth-container hidden">
         <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
         <form id="loginForm" onsubmit="handleLogin(event)">
-            <input type="email" id="login_email" placeholder="Email" required>
+            <input type="text" id="login_username" placeholder="Telegram Username" required>
             <input type="password" id="login_password" placeholder="Password" required>
             <button type="submit" class="btn btn-primary">Login</button>
         </form>
@@ -335,8 +335,8 @@
   <div id="profile" class="section">
     <h2><i class="fas fa-user-circle icon"></i>Profile</h2>
     <div class="card">
-      <h3>Email</h3>
-      <span class="value" id="profileEmail"><b>Guest</b></span>
+      <h3>Username</h3>
+      <span class="value" id="profileUsername"><b>Guest</b></span>
     </div>
     <div class="card">
       <h3>Total Withdraw</h3>
@@ -380,38 +380,17 @@
   </button>
 </nav>
 
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-
 <script>
-  // Your Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyCjqCkvQf_E8Nch3-sJbzLskIc8qgTEwcc",
-    authDomain: "earn-to-7bd9a.firebaseapp.com",
-    databaseURL: "https://earn-to-7bd9a-default-rtdb.firebaseio.com",
-    projectId: "earn-to-7bd9a",
-    storageBucket: "earn-to-7bd9a.firebasestorage.app",
-    messagingSenderId: "1086733479022",
-    appId: "1:1086733479022:web:8642ba43995641b9340a7f",
-    measurementId: "G-YHP7Y0FPT2"
-  };
-
   // Your Telegram and Monetag Details
-  const BOT_TOKEN = '8254257053:AAG3D7CaqN1FtQ7Ltl2NVF_q85ZarmiZwFs';
+  const BOT_TOKEN = '8254257053:AAG3D7CaqN1FtQ7Ltl2NVF_q85ZarmiZwFs'; 
   const CHAT_ID = '5965219037';
   const MONETAG_ZONE_ID = '9572158';
 
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const database = firebase.database();
-
+  let currentUsername = localStorage.getItem('currentUsername') || null;
   let verificationCode = null;
   let tempUserData = {};
   let currentUserChatId = null;
 
-  // Telegram functions
   function sendTelegramNotification(chatId, message) {
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=HTML`;
     fetch(url)
@@ -457,22 +436,18 @@
     document.getElementById('verificationModal').style.display = 'none';
   }
 
-  // UI management
-  function updateUI(user) {
-    const authSections = document.getElementById('authSections');
-    const mainApp = document.getElementById('mainApp');
-    const appNav = document.getElementById('appNav');
-
-    if (user) {
-      authSections.classList.add('hidden');
-      mainApp.classList.remove('hidden');
-      appNav.style.display = 'flex';
-      loadUserData(user);
+  // Authentication Logic
+  function checkLoginStatus() {
+    if (currentUsername) {
+      document.getElementById('authSections').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+      document.getElementById('appNav').style.display = 'flex';
+      loadUserData(currentUsername);
     } else {
-      authSections.classList.remove('hidden');
-      mainApp.classList.add('hidden');
-      appNav.style.display = 'none';
-      showRegister(); // Reset to register view on logout
+      document.getElementById('authSections').classList.remove('hidden');
+      document.getElementById('mainApp').classList.add('hidden');
+      document.getElementById('appNav').style.display = 'none';
+      showRegister();
     }
   }
 
@@ -486,74 +461,56 @@
     document.getElementById('registerSection').classList.remove('hidden');
   }
 
-  // Firebase Authentication and data handling
-  auth.onAuthStateChanged(user => {
-    updateUI(user);
-    if(user) {
-      document.getElementById('profileEmail').innerHTML = `<b>${user.email}</b>`;
-    }
-  });
-
   function handleRegistration(e) {
     e.preventDefault();
-    const email = document.getElementById('reg_email').value;
+    const username = document.getElementById('reg_username').value;
     const password = document.getElementById('reg_password').value;
     const telegramChatId = document.getElementById('reg_chat_id').value;
-
+    
+    // Validation Checks
+    if (!username.startsWith('@')) {
+        alert("❌ Username must start with '@'.");
+        return;
+    }
     if (password.length < 8) {
-      alert("❌ Password must be at least 8 characters long.");
-      return;
+        alert("❌ Password must be at least 8 characters long.");
+        return;
     }
     if (telegramChatId.length !== 10) {
-      alert("❌ Telegram Chat ID must be exactly 10 digits long.");
+        alert("❌ Telegram Chat ID must be exactly 10 digits long.");
+        return;
+    }
+    
+    if (localStorage.getItem(username)) {
+      alert("❌ This username is already taken!");
       return;
     }
-
-    auth.fetchSignInMethodsForEmail(email).then(methods => {
-      if (methods.length > 0) {
-        alert("❌ This email is already registered.");
-      } else {
-        verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
-        sendTelegramNotification(telegramChatId, `Your verification code is: <b>${verificationCode}</b>`);
-
-        tempUserData = {
-          email: email,
-          password: password,
-          chatId: telegramChatId,
-          balance: 0,
-          withdraw: 0,
-          tasks: 0,
-          ads: 0
-        };
-        
-        showModal();
-      }
-    });
+    
+    verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
+    sendTelegramNotification(telegramChatId, `Your verification code is: <b>${verificationCode}</b>`);
+    
+    tempUserData = {
+      username: username,
+      password: password,
+      chatId: telegramChatId,
+      balance: 0,
+      withdraw: 0,
+      tasks: 0,
+      ads: 0
+    };
+    
+    showModal();
   }
-
+  
   function verifyCode(e) {
     e.preventDefault();
     const submittedCode = document.getElementById('verificationCodeInput').value;
-
+    
     if (submittedCode === verificationCode) {
-      auth.createUserWithEmailAndPassword(tempUserData.email, tempUserData.password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          database.ref('users/' + user.uid).set({
-            chatId: tempUserData.chatId,
-            balance: tempUserData.balance,
-            withdraw: tempUserData.withdraw,
-            tasks: tempUserData.tasks,
-            ads: tempUserData.ads
-          });
-          alert("✅ Registration successful!");
-          closeModal();
-          showLogin();
-        })
-        .catch((error) => {
-          alert(`❌ Registration failed: ${error.message}`);
-        });
-
+      localStorage.setItem(tempUserData.username, JSON.stringify(tempUserData));
+      alert("✅ Registration successful! Please log in.");
+      closeModal();
+      showLogin();
       verificationCode = null;
       tempUserData = {};
       document.getElementById('verificationCodeInput').value = '';
@@ -564,56 +521,75 @@
 
   function handleLogin(e) {
     e.preventDefault();
-    const email = document.getElementById('login_email').value;
+    const username = document.getElementById('login_username').value;
     const password = document.getElementById('login_password').value;
-
-    auth.signInWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        console.log('Login successful!');
-      })
-      .catch((error) => {
-        alert(`❌ Login failed: ${error.message}`);
-      });
+    
+    const userData = JSON.parse(localStorage.getItem(username));
+    if (userData && userData.password === password) {
+      currentUsername = username;
+      localStorage.setItem('currentUsername', username);
+      checkLoginStatus();
+    } else {
+      alert("❌ Invalid username or password.");
+    }
   }
 
   function logout() {
-    auth.signOut().then(() => {
-      console.log('Logout successful!');
-    }).catch((error) => {
-      console.error('Logout failed:', error);
-    });
+    currentUsername = null;
+    localStorage.removeItem('currentUsername');
+    checkLoginStatus();
   }
 
-  function loadUserData(user) {
-    const userRef = database.ref('users/' + user.uid);
-    userRef.on('value', (snapshot) => {
-      const userData = snapshot.val() || {
-        balance: 0,
-        withdraw: 0,
-        tasks: 0,
-        ads: 0,
-        chatId: null
-      };
+  // App Logic
+  let balance, withdraw, tasks, ads;
 
-      document.getElementById("balance").innerText = userData.balance;
-      document.getElementById("withdraw").innerText = userData.withdraw;
-      document.getElementById("tasks").innerText = userData.tasks;
-      document.getElementById("ads").innerText = userData.ads;
-      document.getElementById("profileWithdraw").innerText = userData.withdraw;
-      document.getElementById("profileTasks").innerText = userData.tasks;
-      document.getElementById("profileAds").innerText = userData.ads;
+  function loadUserData(username) {
+    const userData = JSON.parse(localStorage.getItem(username));
+    if (userData) {
+      balance = userData.balance;
+      withdraw = userData.withdraw;
+      tasks = userData.tasks;
+      ads = userData.ads;
       currentUserChatId = userData.chatId;
-    });
+
+      document.getElementById('profileUsername').innerHTML = `<b>${username}</b>`;
+    }
+    updateUI();
   }
 
+  function updateUI() {
+    document.getElementById("balance").innerText = balance;
+    document.getElementById("withdraw").innerText = withdraw;
+    document.getElementById("tasks").innerText = tasks;
+    document.getElementById("ads").innerText = ads;
+    document.getElementById("profileWithdraw").innerText = withdraw;
+    document.getElementById("profileTasks").innerText = tasks;
+    document.getElementById("profileAds").innerText = ads;
+  }
+
+  function saveData() {
+    if (currentUsername) {
+      const userData = {
+        username: currentUsername,
+        password: JSON.parse(localStorage.getItem(currentUsername)).password,
+        chatId: currentUserChatId,
+        balance: balance,
+        withdraw: withdraw,
+        tasks: tasks,
+        ads: ads
+      };
+      localStorage.setItem(currentUsername, JSON.stringify(userData));
+    }
+  }
+  
   function showSection(id, element) {
     document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
     document.getElementById(id).classList.add("active");
     
     document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active-nav"));
-    if (element) {
-        element.classList.add("active-nav");
-    }
+    element.classList.add("active-nav");
+    
+    updateUI();
   }
 
   function showRewardedAd() {
@@ -621,18 +597,11 @@
     if (showAd) {
       showAd()
         .then(() => {
-          const user = auth.currentUser;
-          if (user) {
-            const userRef = database.ref('users/' + user.uid);
-            userRef.transaction((currentData) => {
-              if (currentData) {
-                currentData.balance = (currentData.balance || 0) + 10;
-                currentData.ads = (currentData.ads || 0) + 1;
-              }
-              return currentData;
-            });
-            alert("✅ You earned 10 points!");
-          }
+          balance += 10;
+          ads += 1;
+          saveData();
+          alert("✅ You earned 10 points!");
+          updateUI();
         })
         .catch(error => {
           console.error("Ad failed to show:", error);
@@ -701,62 +670,49 @@
 
   function submitTask(e, points, taskName) {
     e.preventDefault();
-    const user = auth.currentUser;
-    if (user && currentUserChatId) {
-      const fileInput = e.target.querySelector('input[type="file"]');
-      const file = fileInput.files[0];
-      
-      const userRef = database.ref('users/' + user.uid);
-      userRef.transaction((currentData) => {
-        if (currentData) {
-          currentData.balance = (currentData.balance || 0) + points;
-          currentData.tasks = (currentData.tasks || 0) + 1;
-        }
-        return currentData;
-      });
-      
-      alert("📷 Screenshot submitted. You earned " + points + " points!");
-      const caption = `<b>New Task Submission!</b>\n<b>User:</b> ${user.email}\n<b>Task Name:</b> ${taskName}`;
-      sendTelegramImageNotification(CHAT_ID, file, caption);
-    } else {
+    if (!currentUsername) {
       alert("❌ Please login first.");
+      return;
     }
+    const fileInput = e.target.querySelector('input[type="file"]');
+    const file = fileInput.files[0];
+    
+    tasks += 1;
+    balance += points;
+    saveData();
+    
+    alert("📷 Screenshot submitted. You earned " + points + " points!");
+    updateUI();
+
+    const caption = `<b>New Task Submission!</b>\n<b>User:</b> ${currentUsername}\n<b>Task Name:</b> ${taskName}`;
+    sendTelegramImageNotification(CHAT_ID, file, caption);
   }
 
   function submitWithdraw(e) {
     e.preventDefault();
-    const user = auth.currentUser;
-    if (user && currentUserChatId) {
-      const amount = parseInt(document.getElementById("amount").value);
-      const number = document.getElementById("number").value;
-      
-      const userRef = database.ref('users/' + user.uid);
-      userRef.once('value').then(snapshot => {
-        const currentBalance = snapshot.val() ? snapshot.val().balance : 0;
-
-        if (amount > currentBalance) {
-          alert("❌ Not enough balance.");
-          return;
-        }
-        
-        userRef.transaction((currentData) => {
-          if (currentData) {
-            currentData.withdraw = (currentData.withdraw || 0) + amount;
-            currentData.balance = (currentData.balance || 0) - amount;
-          }
-          return currentData;
-        });
-
-        alert("✅ Withdraw submitted! Remaining balance: " + (currentBalance - amount) + ".");
-        document.getElementById("number").value = '';
-        document.getElementById("amount").value = '';
-
-        const withdrawMessage = `<b>New Withdraw Request!</b>\n<b>User:</b> ${user.email}\n<b>Number:</b> ${number}\n<b>Amount:</b> ${amount}\n<b>Chat ID:</b> ${currentUserChatId}`;
-        sendTelegramNotification(CHAT_ID, withdrawMessage);
-      });
-    } else {
+    if (!currentUsername) {
       alert("❌ Please login first.");
+      return;
     }
+    const amount = parseInt(document.getElementById("amount").value);
+    const number = document.getElementById("number").value;
+    
+    if (amount > balance) {
+      alert("❌ Not enough balance.");
+      return;
+    }
+    
+    withdraw += amount;
+    balance -= amount;
+    saveData();
+    
+    alert("✅ Withdraw submitted! Remaining balance: " + balance + ".");
+    updateUI();
+    document.getElementById("number").value = '';
+    document.getElementById("amount").value = '';
+
+    const withdrawMessage = `<b>New Withdraw Request!</b>\n<b>User:</b> ${currentUsername}\n<b>Number:</b> ${number}\n<b>Amount:</b> ${amount}\n<b>Chat ID:</b> ${currentUserChatId}`;
+    sendTelegramNotification(CHAT_ID, withdrawMessage);
   }
 
   window.onload = () => {
@@ -766,6 +722,7 @@
     script.setAttribute('data-sdk', `show_${MONETAG_ZONE_ID}`);
     document.head.appendChild(script);
 
+    checkLoginStatus();
     const homeButton = document.querySelector('nav button:first-child');
     if (homeButton) {
       showSection('home', homeButton);
