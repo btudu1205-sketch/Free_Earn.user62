@@ -497,7 +497,6 @@
     });
   }
 
-  // Modal functions
   function showModal() {
     document.getElementById('verificationModal').style.display = 'block';
   }
@@ -505,7 +504,6 @@
     document.getElementById('verificationModal').style.display = 'none';
   }
 
-  // Authentication Logic
   function checkLoginStatus() {
     if (currentUsername) {
       document.getElementById('authSections').classList.add('hidden');
@@ -535,7 +533,6 @@
     const password = document.getElementById('reg_password').value;
     const telegramChatId = document.getElementById('reg_chat_id').value;
     
-    // Validation Checks
     if (!username.startsWith('@')) {
         alert("❌ Username must start with '@'.");
         return;
@@ -602,7 +599,6 @@
     }
   }
 
-  // App Logic
   let balance, withdraw, tasks, ads;
   let currentUserChatId;
 
@@ -650,7 +646,6 @@
     
     updateUI();
 
-    // Reset games when switching sections
     if (id !== 'gameSection') {
       endGame();
     }
@@ -771,7 +766,7 @@
     sendTelegramNotification(CHAT_ID, withdrawMessage);
   }
 
-  // New Game Logic
+  // Bubble Shooter Game Logic
   let gameInterval;
   let canvas, ctx;
   let bubbles = [];
@@ -802,7 +797,6 @@
       }
     }
     
-    // Create shooter bubble
     shooterBubble = {
       x: canvas.width / 2,
       y: canvas.height - 30,
@@ -822,7 +816,6 @@
     gameActive = false;
     alert(`Game Over! Your final score is: ${currentScore}`);
     
-    // Award points based on score, if needed
     balance += Math.floor(currentScore / 100);
     saveData();
     updateUI();
@@ -842,30 +835,23 @@
       shooterBubble.x += shooterBubble.speedX;
       shooterBubble.y += shooterBubble.speedY;
 
-      // Check for collision with top wall
       if (shooterBubble.y - shooterBubble.radius < 0) {
         shooterBubble.isShot = false;
         shooterBubble.y = shooterBubble.radius;
-        // Logic for attaching to the grid
-        // For simplicity, let's just reset the shooter for now
         resetShooter();
       }
 
-      // Check for collision with side walls
       if (shooterBubble.x - shooterBubble.radius < 0 || shooterBubble.x + shooterBubble.radius > canvas.width) {
         shooterBubble.speedX *= -1;
       }
 
-      // Check for collision with other bubbles
       for (let i = 0; i < bubbles.length; i++) {
         const dx = shooterBubble.x - bubbles[i].x;
         const dy = shooterBubble.y - bubbles[i].y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance < bubbleRadius * 2) {
-          // Collision detected!
           if (shooterBubble.color === bubbles[i].color) {
-            // Find and remove connected same-colored bubbles
             const bubblesToPop = findConnectedBubbles(bubbles[i].x, bubbles[i].y, shooterBubble.color);
             bubblesToPop.forEach(popBubble => {
               bubbles = bubbles.filter(b => b !== popBubble);
@@ -892,7 +878,6 @@
   }
 
   function drawShooter() {
-    // Draw current shooter bubble
     ctx.beginPath();
     ctx.arc(shooterBubble.x, shooterBubble.y, shooterBubble.radius, 0, Math.PI * 2);
     ctx.fillStyle = shooterBubble.color;
@@ -937,7 +922,6 @@
       if (bubble && bubble.color === color) {
         connected.push(bubble);
 
-        // Check neighbors
         for (const neighbor of getNeighbors(current.x, current.y)) {
           stack.push(neighbor);
         }
@@ -947,7 +931,6 @@
   }
   
   function getNeighbors(x, y) {
-    // This is a simplified neighbor-finding logic
     const neighbors = [];
     const positions = [
         { dx: -2 * bubbleRadius, dy: 0 },
@@ -968,7 +951,6 @@
       startGame();
     } else {
       alert(`Starting game: ${gameName}.`);
-      // Other game logic would go here
     }
   }
 
