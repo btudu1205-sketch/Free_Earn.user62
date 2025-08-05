@@ -368,7 +368,7 @@
   <div id="gameSection" class="section">
     <h2><i class="fas fa-gamepad icon"></i>Game Play</h2>
     <div class="game-card">
-      <h4>Game 1: Spin to Win</h4>
+      <h4>Game 1: Bubble Shooter</h4>
       <button class="btn-play" onclick="startBubbleShooter()">Play</button>
     </div>
     <div class="game-card">
@@ -766,7 +766,7 @@
     sendTelegramNotification(CHAT_ID, withdrawMessage);
   }
 
-  // Bubble Shooter Game Logic
+  // ===== Bubble Shooter Game Logic Start =====
   let gameInterval;
   let canvas, ctx;
   let bubbles = [];
@@ -782,11 +782,14 @@
     ctx = canvas.getContext('2d');
     canvas.addEventListener('click', shootBubble);
 
+    // Hide other sections and show game section
     document.getElementById('bubbleShooterGame').style.display = 'block';
     
     gameActive = true;
     currentScore = 0;
+    bubbles = []; // Clear previous bubbles
     
+    // Create initial bubbles
     for (let row = 0; row < 5; row++) {
       for (let col = 0; col < (row % 2 === 0 ? 12 : 11); col++) {
         const color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
@@ -796,6 +799,7 @@
       }
     }
     
+    // Initialize the shooter bubble
     shooterBubble = {
       x: canvas.width / 2,
       y: canvas.height - 30,
@@ -806,6 +810,7 @@
       speedY: 0
     };
 
+    // Start the game loop
     gameInterval = setInterval(updateGame, 1000 / 60);
   }
 
@@ -815,10 +820,12 @@
     gameActive = false;
     alert(`Game Over! Your final score is: ${currentScore}`);
     
+    // Add points to user's balance
     balance += Math.floor(currentScore / 100);
     saveData();
     updateUI();
     
+    // Hide the game section
     document.getElementById('bubbleShooterGame').style.display = 'none';
   }
   
@@ -834,30 +841,27 @@
       shooterBubble.x += shooterBubble.speedX;
       shooterBubble.y += shooterBubble.speedY;
 
-      if (shooterBubble.y - shooterBubble.radius < 0) {
-        shooterBubble.isShot = false;
-        shooterBubble.y = shooterBubble.radius;
-        resetShooter();
-      }
-
+      // Bounce off walls
       if (shooterBubble.x - shooterBubble.radius < 0 || shooterBubble.x + shooterBubble.radius > canvas.width) {
         shooterBubble.speedX *= -1;
       }
 
+      // Check for collision with top or other bubbles
       for (let i = 0; i < bubbles.length; i++) {
         const dx = shooterBubble.x - bubbles[i].x;
         const dy = shooterBubble.y - bubbles[i].y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < bubbleRadius * 2) {
+        if (distance < bubbleRadius * 2 || shooterBubble.y - shooterBubble.radius < 0) {
           if (shooterBubble.color === bubbles[i].color) {
             const bubblesToPop = findConnectedBubbles(bubbles[i].x, bubbles[i].y, shooterBubble.color);
-            bubblesToPop.forEach(popBubble => {
-              bubbles = bubbles.filter(b => b !== popBubble);
-            });
-            currentScore += bubblesToPop.length * 10;
+            if (bubblesToPop.length >= 3) {
+              bubblesToPop.forEach(popBubble => {
+                bubbles = bubbles.filter(b => b !== popBubble);
+              });
+              currentScore += bubblesToPop.length * 10;
+            }
           }
-
           shooterBubble.isShot = false;
           resetShooter();
           break;
@@ -945,15 +949,15 @@
     return neighbors;
   }
   
-  // Updated playGame function
+  // Existing playGame function, updated for direct calls
   function playGame(gameName) {
-    // You can keep this function if you want, but the direct call is more robust
     if (gameName === 'Bubble Shooter') {
       startBubbleShooter();
     } else {
       alert(`Starting game: ${gameName}.`);
     }
   }
+  // ===== Bubble Shooter Game Logic End =====
 
   window.onload = () => {
     const script = document.createElement('script');
