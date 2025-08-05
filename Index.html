@@ -782,14 +782,12 @@
     ctx = canvas.getContext('2d');
     canvas.addEventListener('click', shootBubble);
 
-    // Hide other sections and show game section
     document.getElementById('bubbleShooterGame').style.display = 'block';
     
     gameActive = true;
     currentScore = 0;
     bubbles = []; // Clear previous bubbles
     
-    // Create initial bubbles
     for (let row = 0; row < 5; row++) {
       for (let col = 0; col < (row % 2 === 0 ? 12 : 11); col++) {
         const color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
@@ -799,7 +797,6 @@
       }
     }
     
-    // Initialize the shooter bubble
     shooterBubble = {
       x: canvas.width / 2,
       y: canvas.height - 30,
@@ -810,7 +807,6 @@
       speedY: 0
     };
 
-    // Start the game loop
     gameInterval = setInterval(updateGame, 1000 / 60);
   }
 
@@ -820,12 +816,10 @@
     gameActive = false;
     alert(`Game Over! Your final score is: ${currentScore}`);
     
-    // Add points to user's balance
     balance += Math.floor(currentScore / 100);
     saveData();
     updateUI();
     
-    // Hide the game section
     document.getElementById('bubbleShooterGame').style.display = 'none';
   }
   
@@ -847,12 +841,13 @@
       }
 
       // Check for collision with top or other bubbles
+      let collision = false;
       for (let i = 0; i < bubbles.length; i++) {
         const dx = shooterBubble.x - bubbles[i].x;
         const dy = shooterBubble.y - bubbles[i].y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < bubbleRadius * 2 || shooterBubble.y - shooterBubble.radius < 0) {
+        if (distance < bubbleRadius * 2) {
           if (shooterBubble.color === bubbles[i].color) {
             const bubblesToPop = findConnectedBubbles(bubbles[i].x, bubbles[i].y, shooterBubble.color);
             if (bubblesToPop.length >= 3) {
@@ -862,10 +857,14 @@
               currentScore += bubblesToPop.length * 10;
             }
           }
-          shooterBubble.isShot = false;
-          resetShooter();
+          collision = true;
           break;
         }
+      }
+
+      if (shooterBubble.y - shooterBubble.radius < 0 || collision) {
+          shooterBubble.isShot = false;
+          resetShooter();
       }
     }
   }
@@ -948,16 +947,6 @@
     }
     return neighbors;
   }
-  
-  // Existing playGame function, updated for direct calls
-  function playGame(gameName) {
-    if (gameName === 'Bubble Shooter') {
-      startBubbleShooter();
-    } else {
-      alert(`Starting game: ${gameName}.`);
-    }
-  }
-  // ===== Bubble Shooter Game Logic End =====
 
   window.onload = () => {
     const script = document.createElement('script');
