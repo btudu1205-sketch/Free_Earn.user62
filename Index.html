@@ -124,11 +124,21 @@
     .btn:active {
       transform: scale(0.98);
     }
-    .btn-primary { background: var(--primary-color); }
-    .btn-secondary { background: var(--secondary-color); }
-    .btn-admin { background: #FF9800; }
-    .btn-owner { background: #F44336; }
-    .btn-terms { background: #9E9E9E; }
+    .btn-primary {
+      background: var(--primary-color);
+    }
+    .btn-secondary {
+      background: var(--secondary-color);
+    }
+    .btn-admin {
+      background: #FF9800;
+    }
+    .btn-owner {
+      background: #F44336;
+    }
+    .btn-terms {
+      background: #9E9E9E;
+    }
     input {
       width: calc(100% - 20px);
       padding: 12px 10px;
@@ -149,7 +159,9 @@
       font-size: 24px;
       font-weight: 600;
     }
-    .icon { margin-right: 10px; }
+    .icon {
+      margin-right: 10px;
+    }
     .task-item {
       background: #e9f5e9;
       padding: 15px;
@@ -160,7 +172,9 @@
       display: block;
       margin-bottom: 10px;
     }
-    .task-item form { margin-top: 10px; }
+    .task-item form {
+      margin-top: 10px;
+    }
     .task-link {
       display: block;
       margin-top: 10px;
@@ -168,7 +182,9 @@
       text-decoration: none;
       color: var(--secondary-color);
     }
-    .task-link i { margin-right: 5px; }
+    .task-link i {
+      margin-right: 5px;
+    }
     .auth-container {
       max-width: 400px;
       margin: 50px auto;
@@ -178,9 +194,15 @@
       box-shadow: var(--shadow);
       text-align: center;
     }
-    .auth-container h2 { margin-bottom: 20px; }
-    .auth-container p { margin-top: 20px; }
-    .hidden { display: none !important; }
+    .auth-container h2 {
+      margin-bottom: 20px;
+    }
+    .auth-container p {
+      margin-top: 20px;
+    }
+    .hidden {
+      display: none !important;
+    }
     .modal {
       display: none;
       position: fixed;
@@ -220,6 +242,30 @@
       font-size: 20px;
       letter-spacing: 5px;
     }
+    .game-card {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: var(--border-radius);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .game-card h4 {
+      margin: 0;
+      font-size: 16px;
+      color: #444;
+    }
+    .game-card .btn-play {
+      background: var(--secondary-color);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+    }
   </style>
 </head>
 <body>
@@ -228,9 +274,8 @@
     <div id="registerSection" class="auth-container">
         <h2><i class="fas fa-user-plus"></i> Register</h2>
         <form id="registerForm" onsubmit="handleRegistration(event)">
-            <input type="email" id="reg_email" placeholder="Email" required>
-            <input type="password" id="reg_password" placeholder="Password (min 8 characters)" required>
             <input type="text" id="reg_username" placeholder="Telegram Username (@username)" required>
+            <input type="password" id="reg_password" placeholder="Password (min 8 characters)" required>
             <input type="text" id="reg_chat_id" placeholder="Telegram Chat ID (10 digits)" required>
             <button type="submit" class="btn btn-primary">Register</button>
         </form>
@@ -240,7 +285,7 @@
     <div id="loginSection" class="auth-container hidden">
         <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
         <form id="loginForm" onsubmit="handleLogin(event)">
-            <input type="email" id="login_email" placeholder="Email" required>
+            <input type="text" id="login_username" placeholder="Telegram Username" required>
             <input type="password" id="login_password" placeholder="Password" required>
             <button type="submit" class="btn btn-primary">Login</button>
         </form>
@@ -263,10 +308,22 @@
 <div id="mainApp" class="container hidden">
   <div id="home" class="section active">
     <h2><i class="fas fa-home icon"></i>Dashboard</h2>
-    <div class="card"><h3>Balance</h3><span class="value" id="balance">0</span></div>
-    <div class="card"><h3>Total Withdraw</h3><span class="value" id="withdraw">0</span></div>
-    <div class="card"><h3>Total Tasks</h3><span class="value" id="tasks">0</span></div>
-    <div class="card"><h3>Ads Watched</h3><span class="value" id="ads">0</span></div>
+    <div class="card">
+      <h3>Balance</h3>
+      <span class="value" id="balance">0</span>
+    </div>
+    <div class="card">
+      <h3>Total Withdraw</h3>
+      <span class="value" id="withdraw">0</span>
+    </div>
+    <div class="card">
+      <h3>Total Tasks</h3>
+      <span class="value" id="tasks">0</span>
+    </div>
+    <div class="card">
+      <h3>Ads Watched</h3>
+      <span class="value" id="ads">0</span>
+    </div>
   </div>
 
   <div id="earn" class="section">
@@ -282,187 +339,216 @@
     <form onsubmit="submitWithdraw(event)">
       <input type="text" id="number" placeholder="Your Number (Bkash/Nagad)" required>
       <input type="number" id="amount" placeholder="Amount" required>
-      <p style="text-align:center; margin-top:0; color: #555;">Minimum Withdraw: <span id="minWithdrawAmount">0</span></p>
       <button type="submit" class="btn btn-primary">Submit Withdraw</button>
     </form>
   </div>
 
+  <div id="gameSection" class="section">
+    <h2><i class="fas fa-gamepad icon"></i>Game Play</h2>
+    <div class="game-card">
+      <h4>Game 1: Spin to Win</h4>
+      <button class="btn-play" onclick="playGame('Spin to Win')">Play</button>
+    </div>
+    <div class="game-card">
+      <h4>Game 2: Guess the Number</h4>
+      <button class="btn-play" onclick="playGame('Guess the Number')">Play</button>
+    </div>
+    <div class="game-card">
+      <h4>Game 3: Tap Challenge</h4>
+      <button class="btn-play" onclick="playGame('Tap Challenge')">Play</button>
+    </div>
+  </div>
+
   <div id="context" class="section">
     <h2><i class="fas fa-headset icon"></i>Support & Info</h2>
-    <a href="#" id="adminLink" target="_blank" style="text-decoration: none;">
+    <a href="https://t.me/admin_link_here" target="_blank" style="text-decoration: none;">
       <button class="btn btn-admin"><i class="fab fa-telegram-plane icon"></i>Admin Support</button>
     </a>
-    <a href="#" id="ownerLink" target="_blank" style="text-decoration: none;">
+    <a href="https://t.me/owner_link_here" target="_blank" style="text-decoration: none;">
       <button class="btn btn-owner"><i class="fab fa-telegram-plane icon"></i>Owner Support</button>
     </a>
-    <a href="#" id="termsLink" target="_blank" style="text-decoration: none;">
+    <a href="https://example.com/terms" target="_blank" style="text-decoration: none;">
       <button class="btn btn-terms"><i class="fas fa-file-contract icon"></i>Terms & Conditions</button>
     </a>
   </div>
 
   <div id="profile" class="section">
     <h2><i class="fas fa-user-circle icon"></i>Profile</h2>
-    <div class="card"><h3>Email</h3><span class="value" id="profileEmail" style="font-size:16px;"><b>Guest</b></span></div>
-    <div class="card"><h3>Total Withdraw</h3><span class="value" id="profileWithdraw">0</span></div>
-    <div class="card"><h3>Total Tasks</h3><span class="value" id="profileTasks">0</span></div>
-    <div class="card"><h3>Total Ads Watched</h3><span class="value" id="profileAds">0</span></div>
+    <div class="card">
+      <h3>Username</h3>
+      <span class="value" id="profileUsername"><b>Guest</b></span>
+    </div>
+    <div class="card">
+      <h3>Total Withdraw</h3>
+      <span class="value" id="profileWithdraw">0</span>
+    </div>
+    <div class="card">
+      <h3>Total Tasks</h3>
+      <span class="value" id="profileTasks">0</span>
+    </div>
+    <div class="card">
+      <h3>Total Ads Watched</h3>
+      <span class="value" id="profileAds">0</span>
+    </div>
   </div>
 </div>
 
 <nav id="appNav">
-  <button onclick="showSection('home', this)" class="active-nav"><i class="fas fa-home"></i><span>Home</span></button>
-  <button onclick="showSection('earn', this)"><i class="fas fa-dollar-sign"></i><span>Earn</span></button>
-  <button onclick="showSection('withdrawSection', this)"><i class="fas fa-wallet"></i><span>Withdraw</span></button>
-  <button onclick="showSection('context', this)"><i class="fas fa-headset"></i><span>Support</span></button>
-  <button onclick="showSection('profile', this)"><i class="fas fa-user-circle"></i><span>Profile</span></button>
-  <button onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+  <button onclick="showSection('home', this)" class="active-nav">
+    <i class="fas fa-home"></i>
+    <span>Home</span>
+  </button>
+  <button onclick="showSection('earn', this)">
+    <i class="fas fa-dollar-sign"></i>
+    <span>Earn</span>
+  </button>
+  <button onclick="showSection('withdrawSection', this)">
+    <i class="fas fa-wallet"></i>
+    <span>Withdraw</span>
+  </button>
+  <button onclick="showSection('gameSection', this)">
+    <i class="fas fa-gamepad"></i>
+    <span>Game Play</span>
+  </button>
+  <button onclick="showSection('context', this)">
+    <i class="fas fa-headset"></i>
+    <span>Support</span>
+  </button>
+  <button onclick="showSection('profile', this)">
+    <i class="fas fa-user-circle"></i>
+    <span>Profile</span>
+  </button>
 </nav>
 
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-
 <script>
-  // Your Firebase configuration here
-  const firebaseConfig = {
-    apiKey: "AIzaSyCjqCkvQf_E8Nch3-sJbzLskIc8qgTEwcc",
-    authDomain: "earn-to-7bd9a.firebaseapp.com",
-    databaseURL: "https://earn-to-7bd9a-default-rtdb.firebaseio.com",
-    projectId: "earn-to-7bd9a",
-    storageBucket: "earn-to-7bd9a.firebasestorage.app",
-    messagingSenderId: "1086733479022",
-    appId: "1:1086733479022:web:8642ba43995641b9340a7f",
-    measurementId: "G-YHP7Y0FPT2"
-  };
-
   // Your Telegram and Monetag Details
-  const BOT_TOKEN = '8254257053:AAG3D7CaqN1FtQ7Ltl2NVF_q85ZarmiZwFs';
+  const BOT_TOKEN = '8254257053:AAG3D7CaqN1FtQ7Ltl2NVF_q85ZarmiZwFs'; 
   const CHAT_ID = '5965219037';
   const MONETAG_ZONE_ID = '9572158';
 
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const database = firebase.database();
-
+  let currentUsername = localStorage.getItem('currentUsername') || null;
   let verificationCode = null;
   let tempUserData = {};
-  let adminConfig = {}; // NEW: To store config from Firebase
 
-  // --- Telegram functions --- (No change)
   function sendTelegramNotification(chatId, message) {
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=HTML`;
-    fetch(url).then(response => response.json()).then(data => {
-      if (!data.ok) console.error("Failed to send Telegram message:", data.description);
-    }).catch(error => console.error("Error sending Telegram message:", error));
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        if (!data.ok) {
+          console.error("Failed to send Telegram message:", data.description);
+        }
+      })
+      .catch(error => {
+        console.error("Error sending Telegram message:", error);
+      });
   }
+
   function sendTelegramImageNotification(chatId, imageFile, caption) {
     const formData = new FormData();
     formData.append('chat_id', chatId);
     formData.append('photo', imageFile);
     formData.append('caption', caption);
+
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
-    fetch(url, { method: 'POST', body: formData }).then(response => response.json()).then(data => {
-      if (!data.ok) console.error("Failed to send image:", data.description);
-    }).catch(error => console.error("Error sending image:", error));
+
+    fetch(url, {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (!data.ok) {
+        console.error("Failed to send image:", data.description);
+      }
+    })
+    .catch(error => {
+      console.error("Error sending image:", error);
+    });
   }
 
-  // --- Modal functions --- (No change)
-  function showModal() { document.getElementById('verificationModal').style.display = 'block'; }
-  function closeModal() { document.getElementById('verificationModal').style.display = 'none'; }
+  // Modal functions
+  function showModal() {
+    document.getElementById('verificationModal').style.display = 'block';
+  }
+  function closeModal() {
+    document.getElementById('verificationModal').style.display = 'none';
+  }
 
-  // --- UI management ---
-  function updateUI(user) {
-    const authSections = document.getElementById('authSections');
-    const mainApp = document.getElementById('mainApp');
-    const appNav = document.getElementById('appNav');
-    if (user) {
-      authSections.classList.add('hidden');
-      mainApp.classList.remove('hidden');
-      appNav.style.display = 'flex';
-      loadUserData(user);
-      loadAdminData(); // NEW: Load admin config
+  // Authentication Logic
+  function checkLoginStatus() {
+    if (currentUsername) {
+      document.getElementById('authSections').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+      document.getElementById('appNav').style.display = 'flex';
+      loadUserData(currentUsername);
     } else {
-      authSections.classList.remove('hidden');
-      mainApp.classList.add('hidden');
-      appNav.style.display = 'none';
-      showRegister();
+      document.getElementById('authSections').classList.remove('hidden');
+      document.getElementById('mainApp').classList.add('hidden');
+      document.getElementById('appNav').style.display = 'none';
     }
-  }
-  
-  // NEW: Load admin data from Firebase
-  function loadAdminData() {
-      database.ref('config').once('value').then(snapshot => {
-          adminConfig = snapshot.val();
-          if (adminConfig) {
-              document.getElementById('adminLink').href = adminConfig.adminLink || '#';
-              document.getElementById('ownerLink').href = adminConfig.ownerLink || '#';
-              document.getElementById('termsLink').href = adminConfig.termsLink || '#';
-              document.getElementById('minWithdrawAmount').innerText = adminConfig.minWithdraw || 0;
-          }
-      });
   }
 
   function showLogin() {
     document.getElementById('loginSection').classList.remove('hidden');
     document.getElementById('registerSection').classList.add('hidden');
   }
+
   function showRegister() {
     document.getElementById('loginSection').classList.add('hidden');
     document.getElementById('registerSection').classList.remove('hidden');
   }
 
-  // --- Firebase Auth & Data Handling ---
-  auth.onAuthStateChanged(user => {
-    updateUI(user);
-    if(user) {
-      document.getElementById('profileEmail').innerHTML = `<b>${user.email}</b>`;
-    }
-  });
-
   function handleRegistration(e) {
     e.preventDefault();
-    const email = document.getElementById('reg_email').value;
+    const username = document.getElementById('reg_username').value;
     const password = document.getElementById('reg_password').value;
-    const telegramUsername = document.getElementById('reg_username').value;
     const telegramChatId = document.getElementById('reg_chat_id').value;
-
-    if (password.length < 8) { alert("❌ Password must be at least 8 characters long."); return; }
-    if (!telegramUsername.startsWith('@')) { alert("❌ Telegram Username must start with '@'."); return; }
-    if (telegramChatId.length !== 10) { alert("❌ Telegram Chat ID must be exactly 10 digits long."); return; }
-
-    auth.fetchSignInMethodsForEmail(email).then(methods => {
-      if (methods.length > 0) {
-        alert("❌ This email is already registered.");
-      } else {
-        verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
-        sendTelegramNotification(telegramChatId, `Your verification code is: <b>${verificationCode}</b>`);
-        tempUserData = { email, password, username: telegramUsername, chatId: telegramChatId, balance: 0, withdraw: 0, tasks: 0, ads: 0 };
-        showModal();
-      }
-    });
+    
+    // Validation Checks
+    if (!username.startsWith('@')) {
+        alert("❌ Username must start with '@'.");
+        return;
+    }
+    if (password.length < 8) {
+        alert("❌ Password must be at least 8 characters long.");
+        return;
+    }
+    if (telegramChatId.length !== 10) {
+        alert("❌ Telegram Chat ID must be exactly 10 digits long.");
+        return;
+    }
+    
+    if (localStorage.getItem(username)) {
+      alert("❌ This username is already taken!");
+      return;
+    }
+    
+    verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
+    sendTelegramNotification(telegramChatId, `Your verification code is: <b>${verificationCode}</b>`);
+    
+    tempUserData = {
+      username: username,
+      password: password,
+      chatId: telegramChatId,
+      balance: 0,
+      withdraw: 0,
+      tasks: 0,
+      ads: 0
+    };
+    
+    showModal();
   }
-
+  
   function verifyCode(e) {
     e.preventDefault();
     const submittedCode = document.getElementById('verificationCodeInput').value;
+    
     if (submittedCode === verificationCode) {
-      auth.createUserWithEmailAndPassword(tempUserData.email, tempUserData.password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          database.ref('users/' + user.uid).set({
-            username: tempUserData.username,
-            chatId: tempUserData.chatId,
-            balance: tempUserData.balance,
-            withdraw: tempUserData.withdraw,
-            tasks: tempUserData.tasks,
-            ads: tempUserData.ads
-          });
-          alert("✅ Registration successful!");
-          closeModal();
-          showLogin();
-        })
-        .catch((error) => alert(`❌ Registration failed: ${error.message}`));
+      localStorage.setItem(tempUserData.username, JSON.stringify(tempUserData));
+      alert("✅ Registration successful! Please log in.");
+      closeModal();
+      showLogin();
       verificationCode = null;
       tempUserData = {};
       document.getElementById('verificationCodeInput').value = '';
@@ -473,172 +559,188 @@
 
   function handleLogin(e) {
     e.preventDefault();
-    const email = document.getElementById('login_email').value;
+    const username = document.getElementById('login_username').value;
     const password = document.getElementById('login_password').value;
-    auth.signInWithEmailAndPassword(email, password)
-      .then((userCredential) => console.log('Login successful!'))
-      .catch((error) => alert(`❌ Login failed: ${error.message}`));
-  }
-
-  function logout() {
-    auth.signOut().then(() => console.log('Logout successful!')).catch((error) => console.error('Logout failed:', error));
-  }
-
-  function loadUserData(user) {
-    const userRef = database.ref('users/' + user.uid);
-    userRef.on('value', (snapshot) => {
-      const userData = snapshot.val() || { balance: 0, withdraw: 0, tasks: 0, ads: 0 };
-      document.getElementById("balance").innerText = userData.balance;
-      document.getElementById("withdraw").innerText = userData.withdraw;
-      document.getElementById("tasks").innerText = userData.tasks;
-      document.getElementById("ads").innerText = userData.ads;
-      document.getElementById("profileWithdraw").innerText = userData.withdraw;
-      document.getElementById("profileTasks").innerText = userData.tasks;
-      document.getElementById("profileAds").innerText = userData.ads;
-    });
-  }
     
-  function showSection(id, element) {
-    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
-    document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active-nav"));
-    if (element) {
-        element.classList.add("active-nav");
+    const userData = JSON.parse(localStorage.getItem(username));
+    if (userData && userData.password === password) {
+      currentUsername = username;
+      localStorage.setItem('currentUsername', username);
+      checkLoginStatus();
+    } else {
+      alert("❌ Invalid username or password.");
     }
   }
 
+  // App Logic
+  let balance, withdraw, tasks, ads;
+  let currentUserChatId;
+
+  function loadUserData(username) {
+    const userData = JSON.parse(localStorage.getItem(username));
+    balance = userData.balance;
+    withdraw = userData.withdraw;
+    tasks = userData.tasks;
+    ads = userData.ads;
+    currentUserChatId = userData.chatId;
+
+    document.getElementById('profileUsername').innerHTML = `<b>${username}</b>`;
+    updateUI();
+  }
+
+  function updateUI() {
+    document.getElementById("balance").innerText = balance;
+    document.getElementById("withdraw").innerText = withdraw;
+    document.getElementById("tasks").innerText = tasks;
+    document.getElementById("ads").innerText = ads;
+    document.getElementById("profileWithdraw").innerText = withdraw;
+    document.getElementById("profileTasks").innerText = tasks;
+    document.getElementById("profileAds").innerText = ads;
+  }
+
+  function saveData() {
+    const userData = {
+      username: currentUsername,
+      password: JSON.parse(localStorage.getItem(currentUsername)).password,
+      chatId: currentUserChatId,
+      balance: balance,
+      withdraw: withdraw,
+      tasks: tasks,
+      ads: ads
+    };
+    localStorage.setItem(currentUsername, JSON.stringify(userData));
+  }
+  
+  function showSection(id, element) {
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    
+    document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active-nav"));
+    element.classList.add("active-nav");
+    
+    updateUI();
+  }
+
   function showRewardedAd() {
-    const user = auth.currentUser;
-    if (!user) { alert("❌ Please login first."); return; }
     const showAd = window[`show_${MONETAG_ZONE_ID}`];
     if (showAd) {
-      showAd().then(() => {
-        const userRef = database.ref('users/' + user.uid);
-        userRef.transaction((currentData) => {
-          if (currentData) {
-            currentData.balance = (currentData.balance || 0) + 10;
-            currentData.ads = (currentData.ads || 0) + 1;
-          }
-          return currentData;
+      showAd()
+        .then(() => {
+          balance += 10;
+          ads += 1;
+          saveData();
+          alert("✅ You earned 10 points!");
+          updateUI();
+        })
+        .catch(error => {
+          console.error("Ad failed to show:", error);
+          alert("❌ Ad could not be loaded. Please try again.");
         });
-        alert("✅ You earned 10 points!");
-      }).catch(error => {
-        console.error("Ad failed to show:", error);
-        alert("❌ Ad could not be loaded. Please try again.");
-      });
     } else {
       alert("❌ Ad script not loaded. Please refresh the page.");
     }
   }
 
-  // MODIFIED: This function now loads tasks from Firebase
   function showTasks() {
-    const taskListDiv = document.getElementById("taskList");
-    taskListDiv.innerHTML = "<h4><i class='fas fa-spinner fa-spin'></i> Loading tasks...</h4>"; // Loading indicator
-    
-    database.ref('tasks').once('value').then(snapshot => {
-        const tasks = snapshot.val();
-        if (tasks) {
-            taskListDiv.innerHTML = ""; // Clear loading indicator
-            Object.keys(tasks).forEach(key => {
-                const task = tasks[key];
-                const taskHtml = `
-                    <div class="task-item">
-                        <span><b>${task.title}</b></span>
-                        <p>Reward: ${task.points} points</p>
-                        <a href="${task.link}" target="_blank" class="btn btn-secondary">
-                            <i class="${task.icon}"></i> Go to Task
-                        </a>
-                        <form onsubmit="submitTask(event, ${task.points}, '${task.title}')">
-                            <input type="file" accept="image/*" required>
-                            <button type="submit" class="btn btn-primary">Submit Screenshot</button>
-                        </form>
-                    </div>`;
-                taskListDiv.innerHTML += taskHtml;
-            });
-        } else {
-            taskListDiv.innerHTML = "<p>No tasks available right now. Check back later!</p>";
-        }
-    }).catch(error => {
-        console.error("Error loading tasks:", error);
-        taskListDiv.innerHTML = "<p>Could not load tasks. Please try again.</p>";
-    });
+    var html = `
+      <div class="task-item">
+        <span><b>Task 1:</b> Subscribe to our Telegram Channel.</span>
+        <a href="https://t.me/your_channel_link" target="_blank" class="btn btn-secondary">
+          <i class="fab fa-telegram"></i>Go to Task
+        </a>
+        <form onsubmit="submitTask(event, 5, 'Telegram Channel')">
+          <input type="file" accept="image/*" required>
+          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
+        </form>
+      </div>
+      <div class="task-item">
+        <span><b>Task 2:</b> Join our Discord Group.</span>
+        <a href="https://discord.gg/your_discord_link" target="_blank" class="btn btn-secondary">
+          <i class="fab fa-discord"></i>Go to Task
+        </a>
+        <form onsubmit="submitTask(event, 5, 'Discord Group')">
+          <input type="file" accept="image/*" required>
+          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
+        </form>
+      </div>
+      <div class="task-item">
+        <span><b>Task 3:</b> Follow us on Twitter.</span>
+        <a href="https://twitter.com/your_twitter_profile" target="_blank" class="btn btn-secondary">
+          <i class="fab fa-twitter"></i>Go to Task
+        </a>
+        <form onsubmit="submitTask(event, 5, 'Twitter Follow')">
+          <input type="file" accept="image/*" required>
+          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
+        </form>
+      </div>
+      <div class="task-item">
+        <span><b>Task 4:</b> Like our Facebook Page.</span>
+        <a href="https://facebook.com/your_page" target="_blank" class="btn btn-secondary">
+          <i class="fab fa-facebook"></i>Go to Task
+        </a>
+        <form onsubmit="submitTask(event, 5, 'Facebook Page')">
+          <input type="file" accept="image/*" required>
+          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
+        </form>
+      </div>
+      <div class="task-item">
+        <span><b>Task 5:</b> Visit our Website.</span>
+        <a href="https://example.com" target="_blank" class="btn btn-secondary">
+          <i class="fas fa-globe"></i>Go to Task
+        </a>
+        <form onsubmit="submitTask(event, 5, 'Website Visit')">
+          <input type="file" accept="image/*" required>
+          <button type="submit" class="btn btn-primary">Submit Screenshot</button>
+        </form>
+      </div>
+    `;
+    document.getElementById("taskList").innerHTML = html;
   }
 
   function submitTask(e, points, taskName) {
     e.preventDefault();
-    const user = auth.currentUser;
-    if (!user) { alert("❌ Please login first."); return; }
-    
     const fileInput = e.target.querySelector('input[type="file"]');
     const file = fileInput.files[0];
     
-    if (!file) {
-        alert("❌ Please select a screenshot.");
-        return;
-    }
-      
-    const userRef = database.ref('users/' + user.uid);
-    userRef.transaction((currentData) => {
-        if (currentData) {
-          currentData.balance = (currentData.balance || 0) + points;
-          currentData.tasks = (currentData.tasks || 0) + 1;
-        }
-        return currentData;
-    });
-      
-    alert("📷 Screenshot submitted for review. You earned " + points + " points!");
-    e.target.reset(); // Clear the form
+    tasks += 1;
+    balance += points;
+    saveData();
+    
+    alert("📷 Screenshot submitted. You earned " + points + " points!");
+    updateUI();
 
-    const caption = `<b>New Task Submission!</b>\n<b>User:</b> ${user.email}\n<b>Task Name:</b> ${taskName}`;
-    userRef.once('value').then(snapshot => {
-        const userData = snapshot.val();
-        // Send screenshot to the main admin chat, not the user's chat
-        sendTelegramImageNotification(CHAT_ID, file, caption);
-    });
+    const caption = `<b>New Task Submission!</b>\n<b>User:</b> ${currentUsername}\n<b>Task Name:</b> ${taskName}`;
+    sendTelegramImageNotification(CHAT_ID, file, caption);
   }
 
   function submitWithdraw(e) {
     e.preventDefault();
-    const user = auth.currentUser;
-    if (!user) { alert("❌ Please login first."); return; }
-
     const amount = parseInt(document.getElementById("amount").value);
     const number = document.getElementById("number").value;
-    const minWithdraw = adminConfig.minWithdraw || 0;
     
-    if (amount < minWithdraw) {
-        alert(`❌ Minimum withdraw amount is ${minWithdraw}.`);
-        return;
+    if (amount > balance) {
+      alert("❌ Not enough balance.");
+      return;
     }
-      
-    const userRef = database.ref('users/' + user.uid);
-    userRef.once('value').then(snapshot => {
-        const currentData = snapshot.val();
-        const currentBalance = currentData ? currentData.balance : 0;
-          
-        if (amount > currentBalance) {
-          alert("❌ Not enough balance.");
-          return;
-        }
-          
-        userRef.transaction((data) => {
-            if (data) {
-                data.withdraw = (data.withdraw || 0) + amount;
-                data.balance = (data.balance || 0) - amount;
-            }
-            return data;
-        });
+    
+    withdraw += amount;
+    balance -= amount;
+    saveData();
+    
+    alert("✅ Withdraw submitted! Remaining balance: " + balance + ".");
+    updateUI();
+    document.getElementById("number").value = '';
+    document.getElementById("amount").value = '';
 
-        alert("✅ Withdraw request submitted! It will be processed soon.");
-        document.getElementById("number").value = '';
-        document.getElementById("amount").value = '';
-
-        if (currentData && currentData.chatId) {
-            const withdrawMessage = `<b>New Withdraw Request!</b>\n<b>User:</b> ${user.email}\n<b>Number:</b> ${number}\n<b>Amount:</b> ${amount}\n<b>User Chat ID:</b> ${currentData.chatId}`;
-            sendTelegramNotification(CHAT_ID, withdrawMessage);
-        }
-    });
+    const withdrawMessage = `<b>New Withdraw Request!</b>\n<b>User:</b> ${currentUsername}\n<b>Number:</b> ${number}\n<b>Amount:</b> ${amount}\n<b>Chat ID:</b> ${currentUserChatId}`;
+    sendTelegramNotification(CHAT_ID, withdrawMessage);
+  }
+  
+  // New function for Game Play
+  function playGame(gameName) {
+    alert(`Starting game: ${gameName}.`);
+    // Here you can add the logic to start the game
+    // For example, you can load a game script or display a game canvas.
   }
 
   window.onload = () => {
@@ -648,11 +750,13 @@
     script.setAttribute('data-sdk', `show_${MONETAG_ZONE_ID}`);
     document.head.appendChild(script);
 
+    checkLoginStatus();
     const homeButton = document.querySelector('nav button:first-child');
     if (homeButton) {
       showSection('home', homeButton);
     }
   };
 </script>
+
 </body>
 </html>
