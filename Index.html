@@ -787,7 +787,6 @@
     gameActive = true;
     currentScore = 0;
     
-    // Create initial bubbles
     for (let row = 0; row < 5; row++) {
       for (let col = 0; col < (row % 2 === 0 ? 12 : 11); col++) {
         const color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
