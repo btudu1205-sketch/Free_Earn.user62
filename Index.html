@@ -266,6 +266,28 @@
       cursor: pointer;
       border: none;
     }
+    /* New styles for Bubble Shooter game */
+    #bubbleShooterGame {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+    }
+    #gameCanvas {
+      background: #e0f7fa;
+      border: 2px solid #00796b;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      margin-bottom: 10px;
+    }
+    #gameControls button {
+      background: var(--primary-color);
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 5px;
+    }
   </style>
 </head>
 <body>
@@ -346,8 +368,8 @@
   <div id="gameSection" class="section">
     <h2><i class="fas fa-gamepad icon"></i>Game Play</h2>
     <div class="game-card">
-      <h4>Game 1: Spin to Win</h4>
-      <button class="btn-play" onclick="playGame('Spin to Win')">Play</button>
+      <h4>Game 1: Bubble Shooter</h4>
+      <button class="btn-play" onclick="playGame('Bubble Shooter')">Play</button>
     </div>
     <div class="game-card">
       <h4>Game 2: Guess the Number</h4>
@@ -356,6 +378,14 @@
     <div class="game-card">
       <h4>Game 3: Tap Challenge</h4>
       <button class="btn-play" onclick="playGame('Tap Challenge')">Play</button>
+    </div>
+    
+    <div id="bubbleShooterGame">
+      <h3>Bubble Shooter Game</h3>
+      <canvas id="gameCanvas" width="360" height="500"></canvas>
+      <div id="gameControls">
+        <button onclick="endGame()">End Game</button>
+      </div>
     </div>
   </div>
 
@@ -619,6 +649,11 @@
     element.classList.add("active-nav");
     
     updateUI();
+
+    // Reset games when switching sections
+    if (id !== 'gameSection') {
+      endGame();
+    }
   }
 
   function showRewardedAd() {
@@ -735,12 +770,206 @@
     const withdrawMessage = `<b>New Withdraw Request!</b>\n<b>User:</b> ${currentUsername}\n<b>Number:</b> ${number}\n<b>Amount:</b> ${amount}\n<b>Chat ID:</b> ${currentUserChatId}`;
     sendTelegramNotification(CHAT_ID, withdrawMessage);
   }
+
+  // New Game Logic
+  let gameInterval;
+  let canvas, ctx;
+  let bubbles = [];
+  let shooterBubble;
+  let currentScore = 0;
+  let gameActive = false;
+
+  const bubbleRadius = 15;
+  const bubbleColors = ['#FF4136', '#FF851B', '#FFDC00', '#2ECC40', '#0074D9'];
+
+  function startGame() {
+    canvas = document.getElementById('gameCanvas');
+    ctx = canvas.getContext('2d');
+    canvas.addEventListener('click', shootBubble);
+
+    document.getElementById('bubbleShooterGame').style.display = 'block';
+    
+    gameActive = true;
+    currentScore = 0;
+    
+    // Create initial bubbles
+    for (let row = 0; row < 5; row++) {
+      for (let col = 0; col < (row % 2 === 0 ? 12 : 11); col++) {
+        const color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
+        const x = (col * bubbleRadius * 2) + (row % 2 === 0 ? bubbleRadius + 5 : bubbleRadius * 2 + 5);
+        const y = row * bubbleRadius * 2 + bubbleRadius;
+        bubbles.push({ x, y, color });
+      }
+    }
+    
+    // Create shooter bubble
+    shooterBubble = {
+      x: canvas.width / 2,
+      y: canvas.height - 30,
+      radius: bubbleRadius,
+      color: bubbleColors[Math.floor(Math.random() * bubbleColors.length)],
+      isShot: false,
+      speedX: 0,
+      speedY: 0
+    };
+
+    gameInterval = setInterval(updateGame, 1000 / 60);
+  }
+
+  function endGame() {
+    if (!gameActive) return;
+    clearInterval(gameInterval);
+    gameActive = false;
+    alert(`Game Over! Your final score is: ${currentScore}`);
+    
+    // Award points based on score, if needed
+    balance += Math.floor(currentScore / 100);
+    saveData();
+    updateUI();
+    
+    document.getElementById('bubbleShooterGame').style.display = 'none';
+  }
   
-  // New function for Game Play
+  function updateGame() {
+    if (!gameActive) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    drawBubbles();
+    drawShooter();
+    
+    if (shooterBubble.isShot) {
+      shooterBubble.x += shooterBubble.speedX;
+      shooterBubble.y += shooterBubble.speedY;
+
+      // Check for collision with top wall
+      if (shooterBubble.y - shooterBubble.radius < 0) {
+        shooterBubble.isShot = false;
+        shooterBubble.y = shooterBubble.radius;
+        // Logic for attaching to the grid
+        // For simplicity, let's just reset the shooter for now
+        resetShooter();
+      }
+
+      // Check for collision with side walls
+      if (shooterBubble.x - shooterBubble.radius < 0 || shooterBubble.x + shooterBubble.radius > canvas.width) {
+        shooterBubble.speedX *= -1;
+      }
+
+      // Check for collision with other bubbles
+      for (let i = 0; i < bubbles.length; i++) {
+        const dx = shooterBubble.x - bubbles[i].x;
+        const dy = shooterBubble.y - bubbles[i].y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < bubbleRadius * 2) {
+          // Collision detected!
+          if (shooterBubble.color === bubbles[i].color) {
+            // Find and remove connected same-colored bubbles
+            const bubblesToPop = findConnectedBubbles(bubbles[i].x, bubbles[i].y, shooterBubble.color);
+            bubblesToPop.forEach(popBubble => {
+              bubbles = bubbles.filter(b => b !== popBubble);
+            });
+            currentScore += bubblesToPop.length * 10;
+          }
+
+          shooterBubble.isShot = false;
+          resetShooter();
+          break;
+        }
+      }
+    }
+  }
+
+  function drawBubbles() {
+    for (const bubble of bubbles) {
+      ctx.beginPath();
+      ctx.arc(bubble.x, bubble.y, bubbleRadius, 0, Math.PI * 2);
+      ctx.fillStyle = bubble.color;
+      ctx.fill();
+      ctx.closePath();
+    }
+  }
+
+  function drawShooter() {
+    // Draw current shooter bubble
+    ctx.beginPath();
+    ctx.arc(shooterBubble.x, shooterBubble.y, shooterBubble.radius, 0, Math.PI * 2);
+    ctx.fillStyle = shooterBubble.color;
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  function shootBubble(e) {
+    if (!gameActive || shooterBubble.isShot) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    const angle = Math.atan2(clickY - shooterBubble.y, clickX - shooterBubble.x);
+    const speed = 10;
+    
+    shooterBubble.speedX = Math.cos(angle) * speed;
+    shooterBubble.speedY = Math.sin(angle) * speed;
+    shooterBubble.isShot = true;
+  }
+  
+  function resetShooter() {
+    shooterBubble.x = canvas.width / 2;
+    shooterBubble.y = canvas.height - 30;
+    shooterBubble.color = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
+  }
+
+  function findConnectedBubbles(x, y, color) {
+    const stack = [{x, y}];
+    const visited = new Set();
+    const connected = [];
+
+    while (stack.length > 0) {
+      const current = stack.pop();
+      const key = `${current.x},${current.y}`;
+
+      if (visited.has(key)) continue;
+      visited.add(key);
+
+      const bubble = bubbles.find(b => b.x === current.x && b.y === current.y);
+      if (bubble && bubble.color === color) {
+        connected.push(bubble);
+
+        // Check neighbors
+        for (const neighbor of getNeighbors(current.x, current.y)) {
+          stack.push(neighbor);
+        }
+      }
+    }
+    return connected;
+  }
+  
+  function getNeighbors(x, y) {
+    // This is a simplified neighbor-finding logic
+    const neighbors = [];
+    const positions = [
+        { dx: -2 * bubbleRadius, dy: 0 },
+        { dx: 2 * bubbleRadius, dy: 0 },
+        { dx: -bubbleRadius, dy: -2 * bubbleRadius },
+        { dx: bubbleRadius, dy: -2 * bubbleRadius },
+        { dx: -bubbleRadius, dy: 2 * bubbleRadius },
+        { dx: bubbleRadius, dy: 2 * bubbleRadius }
+    ];
+    for (const pos of positions) {
+      neighbors.push({ x: x + pos.dx, y: y + pos.dy });
+    }
+    return neighbors;
+  }
+
   function playGame(gameName) {
-    alert(`Starting game: ${gameName}.`);
-    // Here you can add the logic to start the game
-    // For example, you can load a game script or display a game canvas.
+    if (gameName === 'Bubble Shooter') {
+      startGame();
+    } else {
+      alert(`Starting game: ${gameName}.`);
+      // Other game logic would go here
+    }
   }
 
   window.onload = () => {
